@@ -1,0 +1,13 @@
+.push-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #f3ecec;
+}
+
+.push-controls > span {
+  color: var(--muted);
+  font-size: 10px;
+}
+

@@ -1,11 +1,22 @@
+import json
+import logging
 import secrets
 from datetime import timedelta
 
 from asgiref.sync import async_to_sync
+from django.conf import settings
 from channels.layers import get_channel_layer
 from django.utils import timezone
 
-from .models import CoupleConnection, Mood, MoodReaction, Notification, MOOD_MAP, REACTION_MAP
+from .models import CoupleConnection, Mood, MoodReaction, Notification, PushSubscription, MOOD_MAP, REACTION_MAP
+
+try:
+    from pywebpush import WebPushException, webpush
+except ImportError:  # pragma: no cover - requirements.txt installs this in normal environments
+    WebPushException = Exception
+    webpush = None
+
+logger = logging.getLogger(__name__)
 
 
 def profile_for(user):
@@ -58,6 +69,39 @@ def send_group_event(connection, event_type, payload):
     async_to_sync(channel_layer.group_send)(f"couple_{connection.pk}", {"type": event_type, **payload})
 
 
+def send_web_push(user, payload):
+    profile = profile_for(user)
+    if (
+        webpush is None
+        or not settings.VAPID_PUBLIC_KEY
+        or not settings.VAPID_PRIVATE_KEY
+        or not profile.notifications_enabled
+        or not profile.browser_notifications_enabled
+        or profile.do_not_disturb
+    ):
+        return
+    subscriptions = list(PushSubscription.objects.filter(user=user))
+    for subscription in subscriptions:
+        try:
+            webpush(
+                subscription_info={
+                    "endpoint": subscription.endpoint,
+                    "keys": {"p256dh": subscription.p256dh, "auth": subscription.auth},
+                },
+                data=json.dumps(payload),
+                vapid_private_key=settings.VAPID_PRIVATE_KEY,
+                vapid_claims={"sub": settings.VAPID_CLAIMS_EMAIL},
+            )
+        except WebPushException as exc:
+            status_code = getattr(getattr(exc, "response", None), "status_code", None)
+            if status_code in {404, 410}:
+                subscription.delete()
+            else:
+                logger.warning("Browser push failed for user %s: %s", user.pk, exc)
+        except Exception:
+            logger.exception("Unexpected browser push failure for user %s", user.pk)
+
+
 def create_mood(user, mood_type):
     connection = connection_for(user)
     if not connection:
@@ -82,6 +126,15 @@ def create_mood(user, mood_type):
             title=f"{profile_for(user).name} shared a feeling",
             body=f"{profile_for(user).name} {mood.label.lower()} {mood.emoji}",
         )
+    send_web_push(partner, {
+        "title": f"{profile_for(user).name} shared a feeling",
+        "body": f"{profile_for(user).name} {mood.label.lower()} {mood.emoji}",
+        "mood_type": mood_type,
+        "sound": mood_type,
+        "sound_enabled": partner_profile.sound_enabled,
+        "vibration_enabled": partner_profile.vibration_enabled,
+        "url": "/dashboard/",
+    })
     send_group_event(connection, "mood_event", {"sender_id": user.id, "mood_id": mood.id, "mood_type": mood_type})
     return mood, None
 
@@ -106,6 +159,14 @@ def create_reaction(user, reaction_type, mood_id=None):
             title=f"{profile_for(user).name} sent a little something",
             body=f"{REACTION_MAP[reaction_type]['label']} {REACTION_MAP[reaction_type]['emoji']}",
         )
+    send_web_push(partner, {
+        "title": f"{profile_for(user).name} sent a little something",
+        "body": f"{REACTION_MAP[reaction_type]['label']} {REACTION_MAP[reaction_type]['emoji']}",
+        "sound": reaction_type,
+        "sound_enabled": partner_profile.sound_enabled,
+        "vibration_enabled": partner_profile.vibration_enabled,
+        "url": "/dashboard/",
+    })
     send_group_event(connection, "reaction_event", {"sender_id": user.id, "reaction_id": reaction.id, "reaction_type": reaction_type})
     return reaction, None
 

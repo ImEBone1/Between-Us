@@ -5,7 +5,7 @@
 {% block content %}
 <section class="landing-shell">
   <nav class="landing-nav">
-    <a class="brand brand-large" href="{% url 'home' %}"><span class="brand-heart">♡</span><span>Between<span class="brand-accent">Us</span></span></a>
+    <a class="brand brand-large" href="{% url 'home' %}"><span class="brand-heart" aria-hidden="true">♡</span><span>Between<span class="brand-accent">Us</span></span></a>
     <div class="landing-nav-actions"><span class="quiet-note">Private by design</span><a class="button button-ghost" href="{% url 'login' %}">Sign in</a></div>
   </nav>
   <div class="hero-grid">
@@ -16,12 +16,14 @@
       <div class="hero-actions"><a class="button button-primary button-large" href="{% url 'register' %}">Start your space <span>→</span></a><a class="button button-text" href="#how-it-works">See how it works <span>↓</span></a></div>
       <div class="trust-row"><div class="trust-avatars"><span class="avatar avatar-rose">A</span><span class="avatar avatar-lavender">J</span><span class="avatar avatar-peach">M</span></div><span>Made for the in-between moments</span></div>
     </div>
-    <div class="hero-art" aria-label="Two hearts joined together">
+    <div class="hero-art" aria-label="BetweenUs logo">
       <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
       <div class="heart-stage">
         <div class="floating-note note-one">missing you <span>🥺</span></div>
         <div class="floating-note note-two"><span>💞</span> sent with love</div>
-        <div class="heart-duo"><span class="heart-half heart-left">♥</span><span class="heart-half heart-right">♥</span><span class="heart-spark">✦</span></div>
+        <div class="heart-duo" role="img" aria-label="BetweenUs — two hearts meeting">
+          <span class="heart-half heart-left">♥</span><span class="heart-half heart-right">♥</span><span class="heart-spark">✦</span>
+        </div>
         <div class="heart-caption"><strong>Just between us</strong><span>Small feelings. Big closeness.</span></div>
       </div>
     </div>

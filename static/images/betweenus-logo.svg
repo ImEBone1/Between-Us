@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">BetweenUs</title>
+  <desc id="desc">Two connected forms creating a heart</desc>
+  <defs>
+    <linearGradient id="rose" x1="100" y1="90" x2="270" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f08a9b"/>
+      <stop offset="1" stop-color="#dc6d85"/>
+    </linearGradient>
+    <linearGradient id="plum" x1="410" y1="90" x2="242" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7b3a68"/>
+      <stop offset="1" stop-color="#5d294e"/>
+    </linearGradient>
+    <linearGradient id="bridge" x1="225" y1="190" x2="287" y2="240" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a493d0"/>
+      <stop offset="1" stop-color="#8170b5"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M142 122V228c0 49 22 91 65 126l49 40" stroke="url(#rose)" stroke-width="38"/>
+    <path d="M370 122V228c0 49-22 91-65 126l-49 40" stroke="url(#plum)" stroke-width="38"/>
+  </g>
+  <circle cx="142" cy="77" r="23" fill="url(#rose)"/>
+  <circle cx="370" cy="77" r="23" fill="url(#plum)"/>
+  <path d="M256 202c-16 11-25 24-25 39 0 17 10 29 25 43 15-14 25-26 25-43 0-15-9-28-25-39Z" fill="url(#bridge)" opacity=".96"/>
+  <path d="M244 205h24" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".55"/>
+</svg>

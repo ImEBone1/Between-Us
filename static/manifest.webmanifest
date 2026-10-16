@@ -1,0 +1,18 @@
+{
+  "name": "BetweenUs",
+  "short_name": "BetweenUs",
+  "description": "Feel closer, even in silence.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fffaf9",
+  "theme_color": "#fffaf9",
+    "icons": [
+      {
+        "src": "/static/images/betweenus-logo.svg",
+        "sizes": "any",
+        "type": "image/svg+xml",
+        "purpose": "any maskable"
+      }
+    ]
+}

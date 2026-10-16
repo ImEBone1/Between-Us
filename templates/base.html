@@ -5,8 +5,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fffaf9">
+  <meta name="application-name" content="BetweenUs">
+  <meta name="description" content="A private space for two people to feel closer, even in silence.">
   <title>{% block title %}BetweenUs{% endblock %} · Feel closer, even in silence.</title>
+  <link rel="icon" href="{% static 'images/betweenus-logo.svg' %}" type="image/svg+xml">
+  <link rel="alternate icon" href="{% static 'images/betweenus-logo.svg' %}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{% static 'images/betweenus-logo.svg' %}">
+  <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
   <div class="page-glow page-glow-one"></div>

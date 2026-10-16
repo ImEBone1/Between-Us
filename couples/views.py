@@ -1,19 +1,21 @@
 import json
 import time
+from pathlib import Path
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from .forms import ProfileForm, RegisterForm
-from .models import CoupleConnection, Mood, MoodReaction, Notification, MOODS, REACTIONS
+from .models import CoupleConnection, Mood, MoodReaction, Notification, PushSubscription, MOODS, REACTIONS
 from .services import connection_for, connect_with_code, create_mood, create_reaction, invite_for, mark_read
 
 
@@ -21,6 +23,13 @@ def home(request):
     if request.user.is_authenticated:
         return redirect("dashboard")
     return render(request, "landing.html")
+
+
+def service_worker(request):
+    worker_path = Path(settings.BASE_DIR) / "static" / "js" / "sw.js"
+    response = HttpResponse(worker_path.read_text(encoding="utf-8"), content_type="application/javascript")
+    response["Cache-Control"] = "no-cache"
+    return response
 
 
 def register(request):
@@ -60,6 +69,28 @@ def dashboard_view(request):
         "unread_count": Notification.objects.filter(recipient=request.user, read_at__isnull=True).count(),
     }
     return render(request, "dashboard.html", context)
+
+
+def dashboard_state_view(request):
+    connection = connection_for(request.user)
+    if not connection:
+        return JsonResponse({"ok": False, "error": "No active connection."}, status=400)
+    partner = connection.partner_for(request.user)
+    partner_mood = Mood.objects.filter(connection=connection, sender=partner, expires_at__gt=timezone.now()).first()
+    latest_note = Notification.objects.filter(recipient=request.user, connection=connection).first()
+    payload = {
+        "ok": True,
+        "partner_mood": None,
+        "latest_notification_id": latest_note.id if latest_note else None,
+    }
+    if partner_mood:
+        payload["partner_mood"] = {
+            "id": partner_mood.id,
+            "type": partner_mood.mood_type,
+            "label": partner_mood.label,
+            "emoji": partner_mood.emoji,
+        }
+    return JsonResponse(payload)
 
 
 def connect_view(request):
@@ -169,6 +200,28 @@ def api_reaction_view(request):
     return JsonResponse({"ok": True, "reaction": {"id": reaction.id, "type": reaction.reaction_type, "emoji": reaction.reaction["emoji"], "label": reaction.reaction["label"]}})
 
 
+def push_subscribe_view(request):
+    payload = _json_body(request)
+    subscription = payload.get("subscription", payload)
+    endpoint = subscription.get("endpoint") if isinstance(subscription, dict) else None
+    keys = subscription.get("keys", {}) if isinstance(subscription, dict) else {}
+    if not endpoint or not keys.get("p256dh") or not keys.get("auth"):
+        return JsonResponse({"ok": False, "error": "That browser subscription is incomplete."}, status=400)
+    PushSubscription.objects.update_or_create(
+        endpoint=endpoint,
+        defaults={"user": request.user, "p256dh": keys["p256dh"], "auth": keys["auth"]},
+    )
+    return JsonResponse({"ok": True})
+
+
+def push_unsubscribe_view(request):
+    payload = _json_body(request)
+    endpoint = payload.get("endpoint")
+    if endpoint:
+        PushSubscription.objects.filter(user=request.user, endpoint=endpoint).delete()
+    return JsonResponse({"ok": True})
+
+
 dashboard = login_required(dashboard_view)
 connect = login_required(connect_view)
 disconnect = login_required(require_POST(disconnect_view))
@@ -178,4 +231,7 @@ notifications = login_required(notifications_view)
 read = login_required(require_POST(read_notification))
 api_mood = login_required(require_POST(api_mood_view))
 api_reaction = login_required(require_POST(api_reaction_view))
+dashboard_state = login_required(dashboard_state_view)
+push_subscribe = login_required(require_POST(push_subscribe_view))
+push_unsubscribe = login_required(require_POST(push_unsubscribe_view))
 

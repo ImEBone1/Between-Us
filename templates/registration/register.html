@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Create your space{% endblock %}
 {% block content %}
-<div class="auth-shell"><div class="auth-card"><a class="brand auth-brand" href="{% url 'home' %}"><span class="brand-heart">♡</span><span>Between<span class="brand-accent">Us</span></span></a><div class="auth-kicker">A private place for two</div><h1>Make room for<br><em>the little things.</em></h1><p class="auth-subtitle">Create your account. You can invite your person next.</p>
+<div class="auth-shell"><div class="auth-card"><a class="brand auth-brand" href="{% url 'home' %}"><span class="brand-heart" aria-hidden="true">♡</span><span>Between<span class="brand-accent">Us</span></span></a><div class="auth-kicker">A private place for two</div><h1>Make room for<br><em>the little things.</em></h1><p class="auth-subtitle">Create your account. You can invite your person next.</p>
   <form method="post" class="form-stack">{% csrf_token %}{% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
     <div class="field"><label for="id_username">Username</label>{{ form.username }}{% for error in form.username.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
     <div class="field"><label for="id_first_name">First name <span>optional</span></label>{{ form.first_name }}{% for error in form.first_name.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>

@@ -34,6 +34,9 @@ class Profile(models.Model):
     avatar_color = models.CharField(max_length=20, default="rose")
     notifications_enabled = models.BooleanField(default=True)
     do_not_disturb = models.BooleanField(default=False)
+    browser_notifications_enabled = models.BooleanField(default=True)
+    vibration_enabled = models.BooleanField(default=True)
+    sound_enabled = models.BooleanField(default=True)
     mood_expiration_hours = models.PositiveIntegerField(default=12)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -172,4 +175,18 @@ class Notification(models.Model):
     @property
     def is_read(self):
         return self.read_at is not None
+
+
+class PushSubscription(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="push_subscriptions")
+    endpoint = models.URLField(max_length=2048, unique=True)
+    p256dh = models.CharField(max_length=255)
+    auth = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+        indexes = [models.Index(fields=["user", "-updated_at"])]
+
 

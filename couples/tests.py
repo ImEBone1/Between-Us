@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from config.asgi import application
-from .models import CoupleConnection, Mood, MoodReaction, Notification
+from .models import CoupleConnection, Mood, MoodReaction, Notification, PushSubscription
 from .services import connect_with_code, create_mood, create_reaction, invite_for
 
 
@@ -66,6 +66,44 @@ class BetweenUsFlowTests(TestCase):
         valid = self.client.post(reverse("api_mood"), data="{\"mood_type\":\"love\"}", content_type="application/json")
         self.assertEqual(valid.status_code, 200)
         self.assertEqual(Mood.objects.filter(sender=self.alice).count(), 1)
+
+    def test_push_subscription_can_be_registered_and_removed_for_authenticated_user(self):
+        self.client.force_login(self.alice)
+        payload = '{"subscription":{"endpoint":"https://push.example.test/sub/abc","keys":{"p256dh":"public-key","auth":"auth-key"}}}'
+        subscribed = self.client.post(reverse("push_subscribe"), data=payload, content_type="application/json")
+        self.assertEqual(subscribed.status_code, 200)
+        self.assertTrue(PushSubscription.objects.filter(user=self.alice).exists())
+        removed = self.client.post(reverse("push_unsubscribe"), data='{"endpoint":"https://push.example.test/sub/abc"}', content_type="application/json")
+        self.assertEqual(removed.status_code, 200)
+        self.assertFalse(PushSubscription.objects.filter(user=self.alice).exists())
+
+    def test_service_worker_is_available_at_root_scope(self):
+        response = self.client.get(reverse("service_worker"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("showNotification", response.content.decode())
+
+    def test_dashboard_and_settings_render_notification_controls(self):
+        invite = invite_for(self.alice)
+        connect_with_code(self.bob, invite.code)
+        self.client.force_login(self.alice)
+        dashboard = self.client.get(reverse("dashboard"))
+        settings = self.client.get(reverse("settings"))
+        self.assertEqual(dashboard.status_code, 200)
+        self.assertEqual(settings.status_code, 200)
+        self.assertContains(settings, "Browser notifications")
+        self.assertContains(settings, "Feeling sounds")
+
+    def test_dashboard_state_reports_the_current_partner_mood(self):
+        invite = invite_for(self.alice)
+        connection, _ = connect_with_code(self.bob, invite.code)
+        create_mood(self.bob, "missing")
+        self.client.force_login(self.alice)
+
+        response = self.client.get(reverse("dashboard_state"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["partner_mood"]["type"], "missing")
+        self.assertEqual(response.json()["partner_mood"]["id"], Mood.objects.get(connection=connection, sender=self.bob).id)
 
 
 class WebsocketAuthorizationTests(TestCase):

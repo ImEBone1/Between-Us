@@ -8,6 +8,7 @@ BetweenUs is a private, two-person mood-sharing space for staying close without 
 - One active couple connection per user with expiring, difficult-to-guess invitation codes.
 - Eight one-tap moods, active mood expiration, duplicate-click protection, and private history.
 - Reactions, in-app notifications, notification preferences, and Do Not Disturb.
+- Optional browser push notifications delivered through a service worker when the site is closed, with per-user vibration and sound controls.
 - Authenticated WebSocket events for mood and reaction delivery, with the HTTP API as a graceful fallback when a socket is unavailable.
 - Responsive landing page, dashboard, moments timeline, notifications, settings, and admin registrations.
 - Automated tests for registration, invitation validation and expiration, mood/reaction privacy, invalid input, and anonymous WebSocket rejection.
@@ -46,6 +47,14 @@ On Linux/macOS, use `python3 -m venv .venv`, `source .venv/bin/activate`, and re
 Copy `.env.example` to `.env` and set a unique `DJANGO_SECRET_KEY` before deploying. `DJANGO_DEBUG` defaults to `True` for local work. `DJANGO_ALLOWED_HOSTS` accepts a comma-separated list.
 
 SQLite is used by default. Set `DATABASE_URL` to a PostgreSQL URL in production; `dj-database-url` is included for that configuration. Set `REDIS_URL` to switch Channels from the local in-memory layer to Redis.
+
+### Browser push setup
+
+Closed-site alerts use Web Push. Set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_CLAIMS_EMAIL` in `.env`, serve the site over HTTPS in production, and have each user click **Enable browser alerts** in Settings. The browser stores a subscription endpoint for that user, and the server sends a push payload whenever their partner shares a mood or reaction. Expired subscriptions are removed automatically.
+
+The installed `py-vapid` package includes a key helper; run `vapid --gen --json` (or the full path to `vapid.exe` on Windows) and copy the generated public/private values into `.env`. Keep the private value out of source control.
+
+For local development, in-app notifications and WebSocket updates work without VAPID keys. Browser push is generally restricted by browsers to secure origins (HTTPS; localhost is often treated as secure). Vibration can be disabled per user. While the app is open, BetweenUs plays a small mood-specific Web Audio tone; closed-site notifications use the browser/operating system notification sound because service workers cannot reliably play arbitrary audio files in the background.
 
 ## Testing with two accounts
 

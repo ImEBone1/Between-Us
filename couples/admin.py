@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CoupleConnection, Mood, MoodReaction, Notification, Profile
+from .models import CoupleConnection, Mood, MoodReaction, Notification, Profile, PushSubscription
 
 
 @admin.register(Profile)
@@ -31,4 +31,10 @@ class MoodReactionAdmin(admin.ModelAdmin):
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ("recipient", "notification_type", "title", "created_at", "read_at")
     list_filter = ("notification_type", "read_at")
+
+
+@admin.register(PushSubscription)
+class PushSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ("user", "endpoint", "updated_at")
+    search_fields = ("user__username", "endpoint")
 
