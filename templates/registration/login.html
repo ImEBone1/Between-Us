@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<div class="auth-shell"><div class="auth-card"><a class="brand auth-brand" href="{% url 'home' %}"><span class="brand-heart">♡</span><span>Between<span class="brand-accent">Us</span></span></a><div class="auth-kicker">Welcome back</div><h1>Pick up where<br><em>your hearts left off.</em></h1><p class="auth-subtitle">Your private space is waiting for you.</p>
+  <form method="post" class="form-stack">{% csrf_token %}{% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="field"><label for="id_username">Username</label>{{ form.username }}{% for error in form.username.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
+    <div class="field"><label for="id_password">Password</label>{{ form.password }}{% for error in form.password.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
+    <button class="button button-primary button-full" type="submit">Sign in <span>→</span></button>
+  </form>
+  <p class="auth-switch">New here? <a href="{% url 'register' %}">Create your space</a></p>
+</div><div class="auth-side"><div class="auth-side-heart">♡</div><p>“The smallest gesture can cross the biggest distance.”</p><span>— BetweenUs</span></div></div>
+{% endblock %}
+

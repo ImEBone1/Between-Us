@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Our moments{% endblock %}
+{% block content %}
+<section class="page-shell narrow-shell"><div class="page-heading split-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> Your shared history</div><h1>Our <em>moments.</em></h1><p>All the small ways you’ve reached for each other, in one quiet timeline.</p></div><span class="soft-badge">{{ page.paginator.count }} moment{{ page.paginator.count|pluralize }}</span></div>
+  <div class="timeline">{% for entry in page %}<article class="timeline-item"><div class="timeline-line"><span class="timeline-dot"></span></div><div class="timeline-card"><div class="timeline-emoji tone-{{ entry.tone }}">{{ entry.emoji }}</div><div class="timeline-copy"><div class="timeline-meta"><strong>{% if entry.sender_id == user.id %}You{% else %}{{ entry.sender.profile.name }}{% endif %}</strong><time>{{ entry.created_at|date:"M j, Y · g:i A" }}</time></div><h2>{{ entry.label }}</h2>{% if entry.timeline_reaction %}<div class="reaction-received">{{ entry.timeline_reaction.reaction.emoji }} {{ entry.timeline_reaction.reaction.label }}</div>{% endif %}</div></div></article>{% empty %}<div class="empty-state"><span class="empty-heart">♡</span><h2>Your story starts with a feeling.</h2><p>When either of you shares a mood, it will find its way here.</p><a class="button button-primary" href="{% url 'dashboard' %}">Share your first one <span>→</span></a></div>{% endfor %}</div>
+  {% if page.has_other_pages %}<div class="pagination">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">← Newer</a>{% endif %}<span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a href="?page={{ page.next_page_number }}">Older →</a>{% endif %}</div>{% endif %}
+</section>
+{% endblock %}
+

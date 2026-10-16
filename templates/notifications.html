@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Notes{% endblock %}
+{% block content %}
+<section class="page-shell narrow-shell"><div class="page-heading"><div class="eyebrow"><span class="eyebrow-dot"></span> Little reminders of love</div><h1>Your <em>notes.</em></h1><p>Feelings and tiny gestures from your shared space.</p></div><div class="notifications-list">{% for note in notifications %}<article class="notification-card {% if not note.is_read %}unread{% endif %}"><div class="notification-icon">{% if note.notification_type == 'mood' %}{{ note.mood.emoji }}{% else %}{{ note.reaction.reaction.emoji }}{% endif %}</div><div class="notification-copy"><span class="section-kicker">{{ note.created_at|date:"M j · g:i A" }}</span><h2>{{ note.title }}</h2><p>{{ note.body }}</p></div>{% if not note.is_read %}<form method="post" action="{% url 'read_notification' note.id %}">{% csrf_token %}<button class="button button-soft" type="submit">Mark read</button></form>{% else %}<span class="read-mark">✓ read</span>{% endif %}</article>{% empty %}<div class="empty-state"><span class="empty-heart">♡</span><h2>No notes yet.</h2><p>When your person reaches out, a little note will appear here.</p></div>{% endfor %}</div></section>
+{% endblock %}
+

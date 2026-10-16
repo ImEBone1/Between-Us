@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}A little closer{% endblock %}
+{% block body_class %}landing-page{% endblock %}
+{% block content %}
+<section class="landing-shell">
+  <nav class="landing-nav">
+    <a class="brand brand-large" href="{% url 'home' %}"><span class="brand-heart">♡</span><span>Between<span class="brand-accent">Us</span></span></a>
+    <div class="landing-nav-actions"><span class="quiet-note">Private by design</span><a class="button button-ghost" href="{% url 'login' %}">Sign in</a></div>
+  </nav>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="eyebrow-dot"></span> Your little corner of the internet</div>
+      <h1>Say how you feel.<br><em>Without saying a word.</em></h1>
+      <p class="hero-lede">BetweenUs is a quiet, private space for two people to stay close. One tap can say “I miss you,” “I’m here,” or “I need a hug.”</p>
+      <div class="hero-actions"><a class="button button-primary button-large" href="{% url 'register' %}">Start your space <span>→</span></a><a class="button button-text" href="#how-it-works">See how it works <span>↓</span></a></div>
+      <div class="trust-row"><div class="trust-avatars"><span class="avatar avatar-rose">A</span><span class="avatar avatar-lavender">J</span><span class="avatar avatar-peach">M</span></div><span>Made for the in-between moments</span></div>
+    </div>
+    <div class="hero-art" aria-label="Two hearts joined together">
+      <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+      <div class="heart-stage">
+        <div class="floating-note note-one">missing you <span>🥺</span></div>
+        <div class="floating-note note-two"><span>💞</span> sent with love</div>
+        <div class="heart-duo"><span class="heart-half heart-left">♥</span><span class="heart-half heart-right">♥</span><span class="heart-spark">✦</span></div>
+        <div class="heart-caption"><strong>Just between us</strong><span>Small feelings. Big closeness.</span></div>
+      </div>
+    </div>
+  </div>
+  <section class="how-section" id="how-it-works">
+    <div class="section-kicker">A softer way to stay connected</div><h2>Closeness, made simple.</h2>
+    <div class="feature-grid">
+      <article class="feature-card"><span class="feature-number">01</span><div class="feature-icon">♡</div><h3>Feel it</h3><p>Choose the feeling that fits, even when finding the words feels like work.</p></article>
+      <article class="feature-card feature-card-raised"><span class="feature-number">02</span><div class="feature-icon">✦</div><h3>They know</h3><p>Your person gets a gentle, in-app nudge. No pressure. No performance.</p></article>
+      <article class="feature-card"><span class="feature-number">03</span><div class="feature-icon">∞</div><h3>Stay close</h3><p>Look back on your little moments and send something tender in return.</p></article>
+    </div>
+  </section>
+  <footer class="landing-footer"><span>BetweenUs <span class="brand-accent">♡</span></span><span>Feel closer, even in silence.</span><a href="{% url 'register' %}">Make space for each other →</a></footer>
+</section>
+{% endblock %}
+

@@ -1,0 +1,26 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffaf9">
+  <title>{% block title %}BetweenUs{% endblock %} · Feel closer, even in silence.</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="page-glow page-glow-one"></div>
+  <div class="page-glow page-glow-two"></div>
+  {% if user.is_authenticated %}{% include 'partials/nav.html' %}{% endif %}
+  <main class="site-main">
+    {% if messages %}
+      <div class="flash-stack" aria-live="polite">
+        {% for message in messages %}<div class="flash flash-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
+
